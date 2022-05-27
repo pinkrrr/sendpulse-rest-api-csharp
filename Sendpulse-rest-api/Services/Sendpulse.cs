@@ -7,10 +7,12 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Web;
+using SendPulse_Wrapper.Models;
+using SendPulse_Wrapper.Interfaces;
 
-namespace Sendpulse_rest_api.restapi
+namespace SendPulse_Wrapper.Services
 {
-    class Sendpulse :SendpulseInterface
+    class Sendpulse : SendpulseInterface
     {
         private string apiurl = "https://api.sendpulse.com";
         private string userId = null;
@@ -27,8 +29,10 @@ namespace Sendpulse_rest_api.restapi
             this.userId = _userId;
             this.secret = _secret;
             this.tokenName = md5(this.userId + "::" + this.secret);
-            if (this.tokenName != null) {
-                if (!this.getToken()) {
+            if (this.tokenName != null)
+            {
+                if (!this.getToken())
+                {
                     Console.WriteLine("Could not connect to api, check your ID and SECRET");
                 }
             }
@@ -60,25 +64,28 @@ namespace Sendpulse_rest_api.restapi
         /// <param name="data"><string, object> data</param>
         /// <param name="useToken">Boolean useToken</param>
         /// <returns>Dictionary<string, object> result data</returns>
-        public Dictionary<string, object> sendRequest(string path, string method, Dictionary<string, object> data , bool useToken = true)
+        public Dictionary<string, object> sendRequest(string path, string method, Dictionary<string, object> data, bool useToken = true)
         {
             string originalPath = path;
-            
+
             string strReturn = null;
             Dictionary<string, object> response = new Dictionary<string, object>();
-            try {
+            try
+            {
                 string stringdata = "";
-                if(data!=null && data.Count>0)
+                if (data != null && data.Count > 0)
                     stringdata = this.makeRequestString(data);
                 method = method.ToUpper();
-                if (method == "GET" && stringdata.Length>0) {
+                if (method == "GET" && stringdata.Length > 0)
+                {
                     path = path + "?" + stringdata;
                 }
-                HttpWebRequest WebReq = (HttpWebRequest)WebRequest.Create(this.apiurl+"/"+path);
+                HttpWebRequest WebReq = (HttpWebRequest)WebRequest.Create(this.apiurl + "/" + path);
                 WebReq.Method = method;
-                if(useToken && this.tokenName!=null)
+                if (useToken && this.tokenName != null)
                     WebReq.Headers.Add("Authorization", "Bearer " + this.tokenName);
-                if (method != "GET") {
+                if (method != "GET")
+                {
                     byte[] buffer = Encoding.ASCII.GetBytes(stringdata);
                     WebReq.ContentType = "application/x-www-form-urlencoded";
                     WebReq.ContentLength = buffer.Length;
@@ -91,7 +98,7 @@ namespace Sendpulse_rest_api.restapi
                     HttpWebResponse WebResp = (HttpWebResponse)WebReq.GetResponse();
                     HttpStatusCode status = WebResp.StatusCode;
                     response.Add("http_code", (int)status);
-                    
+
                     Stream WebResponse = WebResp.GetResponseStream();
                     StreamReader _response = new StreamReader(WebResponse);
                     strReturn = _response.ReadToEnd();
@@ -130,13 +137,13 @@ namespace Sendpulse_rest_api.restapi
                         strReturn = _response.ReadToEnd();
                         response.Add("data", strReturn);
                     }
-                    
+
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-              
+
             }
             return response;
         }
@@ -164,13 +171,15 @@ namespace Sendpulse_rest_api.restapi
                         stringBuilder.Append("[]=");
                         stringBuilder.Append(HttpUtility.UrlEncode(val.ToString(), Encoding.UTF8));
                     }
-                }else{
+                }
+                else
+                {
                     stringBuilder.Append(key);
                     stringBuilder.Append('=');
                     stringBuilder.Append(HttpUtility.UrlEncode(item.Value.ToString(), Encoding.UTF8));
                 }
             }
-            
+
             return stringBuilder.ToString();
         }
 
@@ -186,7 +195,7 @@ namespace Sendpulse_rest_api.restapi
         /// <exception cref="NotSupportedException">When passed not supported HTTP method</exception>
         public Dictionary<string, object> sendJSONRequest(string endpoint, HttpMethod method, object data, bool useToken = true)
         {
-            if(method != HttpMethod.Get && method != HttpMethod.Post)
+            if (method != HttpMethod.Get && method != HttpMethod.Post)
                 throw new NotSupportedException("Method " + method.ToString() + " not supported yet!");
 
             Dictionary<string, object> response = new Dictionary<string, object>();
@@ -195,9 +204,9 @@ namespace Sendpulse_rest_api.restapi
             try
             {
                 string json = JsonConvert.SerializeObject(data,
-                    new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore});
+                    new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
 
-                HttpWebRequest webRequest = (HttpWebRequest) WebRequest.Create(this.apiurl + "/" + endpoint);
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.apiurl + "/" + endpoint);
                 webRequest.Method = method.ToString();
 
                 if (useToken && this.tokenName != null)
@@ -215,9 +224,9 @@ namespace Sendpulse_rest_api.restapi
 
                 try
                 {
-                    HttpWebResponse webResponse = (HttpWebResponse) webRequest.GetResponse();
+                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
                     HttpStatusCode status = webResponse.StatusCode;
-                    response.Add("http_code", (int) status);
+                    response.Add("http_code", (int)status);
 
                     if (status == HttpStatusCode.Unauthorized && this.refreshToken == 0)
                     {
@@ -241,11 +250,11 @@ namespace Sendpulse_rest_api.restapi
                                 jo = JsonConvert.DeserializeObject<Object>(strReturn.Trim());
                                 if (jo.GetType() == typeof(JObject))
                                 {
-                                    jo = (JObject) jo;
+                                    jo = (JObject)jo;
                                 }
                                 else if (jo.GetType() == typeof(JArray))
                                 {
-                                    jo = (JArray) jo;
+                                    jo = (JArray)jo;
                                 }
                             }
                             catch (JsonException ex)
@@ -259,9 +268,9 @@ namespace Sendpulse_rest_api.restapi
                 }
                 catch (WebException ex)
                 {
-                    HttpStatusCode statusCode = ((HttpWebResponse) ex.Response).StatusCode;
-                    response.Add("http_code", (int) statusCode);
-                    Stream responseStream = ((HttpWebResponse) ex.Response).GetResponseStream();
+                    HttpStatusCode statusCode = ((HttpWebResponse)ex.Response).StatusCode;
+                    response.Add("http_code", (int)statusCode);
+                    Stream responseStream = ((HttpWebResponse)ex.Response).GetResponseStream();
                     using (StreamReader streamReader = new StreamReader(responseStream))
                     {
                         strReturn = streamReader.ReadToEnd();
@@ -277,7 +286,7 @@ namespace Sendpulse_rest_api.restapi
 
             return response;
         }
-        
+
         /// <summary>
         /// Get token and store it
         /// </summary>
@@ -299,7 +308,8 @@ namespace Sendpulse_rest_api.restapi
                 return false;
             this.refreshToken = 0;
             JObject jdata = (JObject)requestResult["data"];
-            if (jdata.GetType() == typeof(JObject)){
+            if (jdata.GetType() == typeof(JObject))
+            {
                 this.tokenName = jdata["access_token"].ToString();
             }
             return true;
@@ -309,8 +319,9 @@ namespace Sendpulse_rest_api.restapi
         /// </summary>
         /// <param name="data">Dictionary<string, object> data</param>
         /// <returns>Dictionary<string, object> data</returns>
-        private Dictionary<string, object> handleResult(Dictionary<string, object> data) {
-            if (!data.ContainsKey("data") || data.Count==0)
+        private Dictionary<string, object> handleResult(Dictionary<string, object> data)
+        {
+            if (!data.ContainsKey("data") || data.Count == 0)
             {
                 data.Add("data", null);
             }
@@ -588,7 +599,7 @@ namespace Sendpulse_rest_api.restapi
         /// <param name="send_date"></param>
         /// <param name="attachments"></param>
         /// <returns></returns>
-        public Dictionary<string, object> createCampaign(string senderName, string senderEmail, string subject, string body, int bookId, string name,string send_date="", string attachments="")
+        public Dictionary<string, object> createCampaign(string senderName, string senderEmail, string subject, string body, int bookId, string name, string send_date = "", string attachments = "")
         {
             if (senderName.Length == 0 || senderEmail.Length == 0 || subject.Length == 0 || body.Length == 0 || bookId <= 0)
                 return this.handleError("Not all data.");
@@ -1033,12 +1044,13 @@ namespace Sendpulse_rest_api.restapi
                 }
                 catch (IOException) { }
                 return this.handleResult(result);
-            }else
+            }
+            else
             {
                 return this.handleError("No such push campaign");
             }
         }
-        
+
         /// <summary>
         /// Get amount of websites
         /// </summary>
@@ -1270,13 +1282,13 @@ namespace Sendpulse_rest_api.restapi
         /// <returns>The phone info.</returns>
         /// <param name="bookId">Book identifier.</param>
         /// <param name="phoneNumber">Phone number.</param>
-        public Dictionary<string, object> getPhoneInfo(int bookId,string phoneNumber)
+        public Dictionary<string, object> getPhoneInfo(int bookId, string phoneNumber)
         {
             Dictionary<string, object> result = null;
             string url = "";
             if (bookId > 0)
             {
-                url = "/sms/numbers/info/"+ bookId + "/" + phoneNumber;
+                url = "/sms/numbers/info/" + bookId + "/" + phoneNumber;
                 try
                 {
                     result = this.sendRequest(url, "GET", null);
@@ -1295,7 +1307,7 @@ namespace Sendpulse_rest_api.restapi
         /// <returns>The phone to black list.</returns>
         /// <param name="phones">Phones.</param>
         /// <param name="description">Description.</param>
-        public Dictionary<string, object> addPhonesToBlackList(string phones,string description)
+        public Dictionary<string, object> addPhonesToBlackList(string phones, string description)
         {
             if (phones.Length == 0) return this.handleError("Empty phones");
             Dictionary<string, object> data = new Dictionary<string, object>();
@@ -1373,7 +1385,7 @@ namespace Sendpulse_rest_api.restapi
         /// <param name="transliterate">Transliterate.</param>
         /// <param name="sender">Sender.</param>
         /// <param name="date">Date.</param>
-        public Dictionary<string, object> sendSmsCampaign(int bookId, string body,int transliterate=1,string sender = "", string date="")
+        public Dictionary<string, object> sendSmsCampaign(int bookId, string body, int transliterate = 1, string sender = "", string date = "")
         {
             if (body.Length == 0) return this.handleError("Empty Body");
             if (bookId <= 0) return this.handleError("Empty address book Id");
@@ -1437,7 +1449,8 @@ namespace Sendpulse_rest_api.restapi
         /// <returns>The sms campaigns list.</returns>
         /// <param name="dateFrom">Date from.</param>
         /// <param name="dateTo">Date to.</param>
-        public Dictionary<string, object> getSmsCampaignsList(string dateFrom,string dateTo){
+        public Dictionary<string, object> getSmsCampaignsList(string dateFrom, string dateTo)
+        {
             Dictionary<string, object> result = null;
             Dictionary<string, object> data = new Dictionary<string, object>();
             data.Add("dateFrom", dateFrom);
@@ -1506,18 +1519,23 @@ namespace Sendpulse_rest_api.restapi
         /// <param name="sender">Sender.</param>
         /// <param name="addressBookId">Address book identifier.</param>
         /// <param name="phones">Phones.</param>
-        public Dictionary<string, object> getSmsCampaignCost(string body,string sender,int addressBookId=0, string phones="")
+        public Dictionary<string, object> getSmsCampaignCost(string body, string sender, int addressBookId = 0, string phones = "")
         {
             if (body.Length == 0) return this.handleError("Empty Body");
             Dictionary<string, object> result = null;
             Dictionary<string, object> data = new Dictionary<string, object>();
             data.Add("body", body);
             data.Add("sender", sender);
-            if(addressBookId <=0 && phones==null){
+            if (addressBookId <= 0 && phones == null)
+            {
                 return this.handleError("Empty recipients list");
-            }else if(phones.Length>0){
+            }
+            else if (phones.Length > 0)
+            {
                 data.Add("phones", phones);
-            }else{
+            }
+            else
+            {
                 data.Add("addressBookId", addressBookId);
             }
             string url = "/sms/campaigns/cost";
@@ -1560,7 +1578,7 @@ namespace Sendpulse_rest_api.restapi
         /// <returns>The phones to addreess book.</returns>
         /// <param name="addressBookId">Address book identifier.</param>
         /// <param name="phones">Phones.</param>
-        public Dictionary<string, object> addPhonesToAddreessBook(int addressBookId,string phones)
+        public Dictionary<string, object> addPhonesToAddreessBook(int addressBookId, string phones)
         {
             if (addressBookId <= 0) return this.handleError("Empty address book id");
             if (phones.Length == 0) return this.handleError("Empty phones");
@@ -1591,7 +1609,7 @@ namespace Sendpulse_rest_api.restapi
 
             if (viberCampaign.SenderId == 0)
                 return this.handleError("Empty sender");
-            
+
             Dictionary<string, object> result = null;
             try
             {
@@ -1621,7 +1639,7 @@ namespace Sendpulse_rest_api.restapi
         /// <returns>The viber tasks list.</returns>
         /// <param name="limit">Limit.</param>
         /// <param name="offset">Offset.</param>
-        public Dictionary<string, object> getViberTasksList(int limit=100,int offset =0 )
+        public Dictionary<string, object> getViberTasksList(int limit = 100, int offset = 0)
         {
             Dictionary<string, object> result = null;
             Dictionary<string, object> data = new Dictionary<string, object>();
@@ -1644,7 +1662,7 @@ namespace Sendpulse_rest_api.restapi
         {
             Dictionary<string, object> result = null;
             if (id <= 0) return this.handleError("Empty id");
-            string url = "/viber/task/"+id;
+            string url = "/viber/task/" + id;
             try
             {
                 result = this.sendRequest(url, "GET", null);

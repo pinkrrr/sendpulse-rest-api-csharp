@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sendpulse-rest-api", "Sendpulse-rest-api\Sendpulse-rest-api.csproj", "{54580CBC-9888-483D-B6F1-AE13D4EC6AAB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendPulse Wrapper", "Sendpulse-rest-api\SendPulse Wrapper.csproj", "{54580CBC-9888-483D-B6F1-AE13D4EC6AAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +18,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4FED847-3D8F-43FA-B623-FA575B488D97}
 	EndGlobalSection
 EndGlobal

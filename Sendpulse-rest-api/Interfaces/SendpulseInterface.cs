@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SendPulse_Wrapper.Models;
 
-namespace Sendpulse_rest_api.restapi
+namespace SendPulse_Wrapper.Interfaces
 {
     interface SendpulseInterface
     {

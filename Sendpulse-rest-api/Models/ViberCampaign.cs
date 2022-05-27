@@ -1,9 +1,9 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Sendpulse_rest_api.restapi.Converters;
+using SendPulse_Wrapper.Converters;
 
-namespace Sendpulse_rest_api.restapi
+namespace SendPulse_Wrapper.Models
 {
 
     public class ViberCampaignButton
@@ -49,12 +49,12 @@ namespace Sendpulse_rest_api.restapi
         [JsonProperty("resend_sms")]
         public ViberCampaignResendSms ResendSms = null;
     }
-    
+
     public class ViberCampaign
     {
         [JsonProperty("task_name")]
         public string Name;
-        
+
         [JsonProperty("recipients")]
         public string[] Recipients = new string[] { };
 
@@ -80,5 +80,5 @@ namespace Sendpulse_rest_api.restapi
         [JsonProperty("additional")]
         public ViberCampaignAdditional Additional = null;
     }
-    
+
 }

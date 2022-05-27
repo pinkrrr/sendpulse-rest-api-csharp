@@ -2,7 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Sendpulse_rest_api.restapi.Converters
+namespace SendPulse_Wrapper.Converters
 {
     public class ViberDateTimeConverter: DateTimeConverterBase
     {
